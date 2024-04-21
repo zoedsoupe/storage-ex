@@ -2,7 +2,7 @@ defmodule Supabase.Storage.BucketHandler do
   @moduledoc """
   Provides low-level API functions for managing Supabase Storage buckets.
 
-  The `BucketHandler` module offers a collection of functions that directly interact with the Supabase Storage API for managing buckets. This module works closely with the `Supabase.Fetcher` for sending HTTP requests and the `Supabase.Storage.Cache` for caching bucket information.
+  The `BucketHandler` module offers a collection of functions that directly interact with the Supabase Storage API for managing buckets. This module works closely with the `Supabase.Fetcher` for sending HTTP requests.
 
   ## Features
 
@@ -22,10 +22,9 @@ defmodule Supabase.Storage.BucketHandler do
   All functions within the module expect a base URL, API key, and access token as their initial arguments, followed by any additional arguments required for the specific operation. Responses are usually in the form of `{:ok, result}` or `{:error, message}` tuples.
   """
 
-  alias Supabase.Connection, as: Conn
+  alias Supabase.Client
   alias Supabase.Fetcher
   alias Supabase.Storage.Bucket
-  alias Supabase.Storage.Cache
   alias Supabase.Storage.Endpoints
 
   @type bucket_id :: String.t()
@@ -43,43 +42,37 @@ defmodule Supabase.Storage.BucketHandler do
           allowed_mime_types: list(String.t()) | nil
         }
 
-  @spec list(Conn.base_url(), Conn.api_key(), Conn.access_token()) ::
-          {:ok, [Bucket.t()]} | {:error, String.t()}
-  def list(base_url, api_key, token) do
-    url = Fetcher.get_full_url(base_url, Endpoints.bucket_path())
-    headers = Fetcher.apply_headers(api_key, token)
+  @spec list(Client.t()) :: {:ok, [Bucket.t()]} | {:error, String.t()}
+  def list(%Client{} = client) do
+    headers = Fetcher.apply_client_headers(client)
+    url = Client.retrieve_storage_url(client, Endpoints.bucket_path())
 
     url
-    |> Fetcher.get(headers)
+    |> Fetcher.get(nil, headers, resolve_json: true)
     |> case do
       {:ok, body} -> {:ok, Enum.map(body, &Bucket.parse!/1)}
       {:error, msg} -> {:error, msg}
     end
   end
 
-  @spec retrieve_info(Conn.base_url(), Conn.api_key(), Conn.access_token(), bucket_id) ::
-          {:ok, Bucket.t()} | {:error, String.t()}
-  def retrieve_info(base_url, api_key, token, bucket_id) do
-    if bucket = Cache.find_bucket_by_id(bucket_id) do
-      {:ok, bucket}
-    else
-      url = Fetcher.get_full_url(base_url, Endpoints.bucket_path_with_id(bucket_id))
-      headers = Fetcher.apply_headers(api_key, token)
+  @spec retrieve_info(Client.t, String.t) :: {:ok, Bucket.t()} | {:error, String.t()}
+  def retrieve_info(%Client{} = client, bucket_id) do
+    uri = Endpoints.bucket_path_with_id(bucket_id)
+    url = Client.retrieve_storage_url(client, uri)
+    headers = Fetcher.apply_client_headers(client)
 
-      url
-      |> Fetcher.get(headers)
-      |> case do
-        {:ok, body} -> {:ok, Bucket.parse!(body)}
-        {:error, msg} -> {:error, msg}
-      end
+    url
+    |> Fetcher.get(nil, headers, resolve_json: true)
+    |> case do
+      {:ok, body} -> {:ok, Bucket.parse!(body)}
+      {:error, msg} -> {:error, msg}
     end
   end
 
-  @spec create(Conn.base_url(), Conn.api_key(), Conn.access_token(), create_attrs) ::
-          {:ok, Bucket.t()} | {:error, String.t()}
-  def create(base_url, api_key, token, attrs) do
-    url = Fetcher.get_full_url(base_url, Endpoints.bucket_path())
-    headers = Fetcher.apply_headers(api_key, token)
+  @spec create(Client.t, create_attrs) :: {:ok, Bucket.t()} | {:error, String.t()}
+  def create(%Client{} = client, attrs) do
+    url = Client.retrieve_storage_url(client, Endpoints.bucket_path())
+    headers = Fetcher.apply_client_headers(client)
 
     url
     |> Fetcher.post(attrs, headers)
@@ -89,11 +82,12 @@ defmodule Supabase.Storage.BucketHandler do
     end
   end
 
-  @spec update(Conn.base_url(), Conn.api_key(), Conn.access_token(), bucket_id, update_attrs) ::
+  @spec update(Client.t, bucket_id, update_attrs) ::
           {:ok, Bucket.t()} | {:error, String.t()}
-  def update(base_url, api_key, token, id, attrs) do
-    url = Fetcher.get_full_url(base_url, Endpoints.bucket_path_with_id(id))
-    headers = Fetcher.apply_headers(api_key, token)
+  def update(%Client{} = client, id, attrs) do
+    uri = Endpoints.bucket_path_with_id(id)
+    url = Client.retrieve_storage_url(client, uri)
+    headers = Fetcher.apply_client_headers(client)
 
     url
     |> Fetcher.put(attrs, headers)
@@ -103,11 +97,12 @@ defmodule Supabase.Storage.BucketHandler do
     end
   end
 
-  @spec empty(Conn.base_url(), Conn.api_key(), Conn.access_token(), bucket_id) ::
+  @spec empty(Client.t, bucket_id) ::
           {:ok, :successfully_emptied} | {:error, String.t()}
-  def empty(base_url, api_key, token, id) do
-    url = Fetcher.get_full_url(base_url, Endpoints.bucket_path_to_empty(id))
-    headers = Fetcher.apply_headers(api_key, token)
+  def empty(%Client{} = client, id) do
+    uri = Endpoints.bucket_path_to_empty(id)
+    url = Client.retrieve_storage_url(client, uri)
+    headers = Fetcher.apply_client_headers(client)
 
     url
     |> Fetcher.post(nil, headers)
@@ -117,11 +112,12 @@ defmodule Supabase.Storage.BucketHandler do
     end
   end
 
-  @spec delete(Conn.base_url(), Conn.api_key(), Conn.access_token(), bucket_id) ::
+  @spec delete(Client.t, bucket_id) ::
           {:ok, String.t()} | {:error, String.t()}
-  def delete(base_url, api_key, token, id) do
-    url = Fetcher.get_full_url(base_url, Endpoints.bucket_path_with_id(id))
-    headers = Fetcher.apply_headers(api_key, token)
+  def delete(%Client{} = client, id) do
+    uri = Endpoints.bucket_path_with_id(id)
+    url = Client.retrieve_storage_url(client, uri)
+    headers = Fetcher.apply_client_headers(client)
 
     url
     |> Fetcher.delete(nil, headers)

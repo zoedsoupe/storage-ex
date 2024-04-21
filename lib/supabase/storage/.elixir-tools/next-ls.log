@@ -1,0 +1,104 @@
+
+12:36:20.587 [info] Loading 149 CA(s) from :otp store
+
+12:36:20.715 id=0 [debug] handled request client -> server initialize in 88ms
+
+12:36:20.719 [debug] sent notification server -> client window/logMessage
+
+12:36:20.724 [debug] sent notification server -> client window/logMessage
+
+12:36:20.724 id=133 [debug] sent request server -> client client/registerCapability
+
+12:36:20.724 [info] [extension] Credo initializing with options %NextLS.InitOpts.Extensions.Credo{enable: true, cli_options: []}
+
+12:36:20.729 [debug] sent notification server -> client window/logMessage
+
+12:36:20.732 id=165 [debug] sent request server -> client window/workDoneProgress/create
+
+12:36:20.739 [debug] sent notification server -> client $/progress
+
+12:36:20.750 [debug] sent notification server -> client window/logMessage
+
+12:36:20.751 [info] Beginning DB migration...
+
+12:36:20.755 [debug] sent notification server -> client window/logMessage
+
+12:36:20.755 [info] Database is on the latest version: 6
+
+12:36:20.755 [debug] sent notification server -> client window/logMessage
+
+12:36:20.756 [info] Finished DB migration...
+
+12:36:20.757 [debug] sent notification server -> client window/logMessage
+
+12:36:20.757 [info] Booting runtime for storage-ex.
+
+- elixir: /Users/zoedsoupe/.nix-profile/bin/elixir
+- zombie wrapper script: /Users/zoedsoupe/Library/Application Support/.burrito/next_ls_erts-14.2.1_0.20.2/lib/next_ls-0.20.2/priv/cmd
+- working_dir: /Users/zoedsoupe/dev/supabase/storage-ex
+- command: /Users/zoedsoupe/.nix-profile/bin/elixir --no-halt --sname nextls-runtime-1713713780755953500 --cookie VMVGYT3UQDPY4DNMQLGXXZUPBANEI3RBSCZKEELDNREFKM7G3NQA==== -S mix loadpaths --no-compile
+
+Environment: 
+
+LSP=nextls
+NEXTLS_PARENT_PID=g1h3LW5leHQtbHMtMTcxMzcxMzc4MDYwMDExNjE2N0Bab2V5cy1NYWNCb29rLUFpcgAAAQcAAAAAZiUydQ==
+MIX_ENV=dev
+MIX_TARGET=host
+MIX_BUILD_ROOT=.elixir-tools/_build
+ROOTDIR=false
+BINDIR=false
+RELEASE_ROOT=false
+RELEASE_SYS_CONFIG=false
+PATH=/Users/zoedsoupe/Library/Application Support/.burrito/next_ls_erts-14.2.1_0.20.2/bin:/nix/store/pzajj7gw0nazs3vzp6jld53q8ird5izr-coreutils-9.4/bin:/nix/store/9z9k8dwhhiryr7z2pz70zca0vwa15yqc-gnused-4.9/bin:/nix/store/zsm4xd527427rnjfnvfhvsld2n57b822-gnugrep-3.11/bin:/nix/store/hhc2x65zvp89lh15grqk21r6dcvifggy-gawk-5.2.2/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin:/Users/zoedsoupe/.nix-profile/bin:/etc/profiles/per-user/zoedsoupe/bin:/run/current-system/sw/bin
+
+
+12:36:20.757 [debug] handled notification client -> server initialized in 40ms
+
+12:36:20.762 [debug] handled notification client -> server textDocument/didOpen in 5ms
+
+12:36:21.792 [debug] sent notification server -> client window/logMessage
+
+12:36:21.792 [info] Connected to node nextls-runtime-1713713780755953500@Zoeys-MacBook-Air
+
+12:36:22.064 [debug] sent notification server -> client window/logMessage
+
+12:36:22.064 [info]      warning: got "@impl true" for function run/1 but no behaviour was declared
+     │
+ 262 │   def run(args) do
+     │   ~~~~~~~~~~~~~~~~
+     │
+     └─ /Users/zoedsoupe/Library/Application Support/.burrito/next_ls_erts-14.2.1_0.20.2/lib/next_ls-0.20.2/priv/monkey/_next_ls_private_compiler.ex:262: :_next_ls_private_formatter (module)
+
+
+
+12:36:22.065 [debug] sent notification server -> client $/progress
+
+12:36:22.066 [debug] sent notification server -> client window/logMessage
+
+12:36:22.067 id=325 [debug] sent request server -> client window/workDoneProgress/create
+
+12:36:22.067 [debug] sent notification server -> client $/progress
+
+12:36:22.115 [debug] sent notification server -> client window/logMessage
+
+12:36:22.115 [info] Compiling 1 file (.ex)
+
+
+12:36:22.119 id=357 [debug] sent request server -> client window/workDoneProgress/create
+
+12:36:22.119 [debug] sent notification server -> client $/progress
+
+12:36:22.192 [debug] sent notification server -> client window/logMessage
+
+12:36:22.192 [info] Generated supabase_storage app
+
+
+12:36:22.193 [debug] sent notification server -> client $/progress
+
+12:36:22.193 [debug] sent notification server -> client window/logMessage
+
+12:36:22.193 [info] Compiled storage-ex!
+
+12:36:22.300 [debug] sent notification server -> client $/progress
+
+12:36:22.382 [debug] sent notification server -> client textDocument/publishDiagnostics

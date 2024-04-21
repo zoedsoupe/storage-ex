@@ -42,7 +42,6 @@ defmodule Supabase.Storage do
   import Supabase.Client, only: [is_client: 1]
 
   alias Supabase.Client
-  alias Supabase.Client.Conn
   alias Supabase.Storage.Bucket
   alias Supabase.Storage.BucketHandler
   alias Supabase.Storage.Object
@@ -72,12 +71,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def list_buckets(client) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        {:ok, BucketHandler.list(base_url, api_key, token)}
+    with {:ok, client} <- Client.retrieve_client(client) do
+      BucketHandler.list(client)
     end
   end
 
@@ -101,12 +96,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def retrieve_bucket_info(client, id) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        BucketHandler.retrieve_info(base_url, api_key, token, id)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      BucketHandler.retrieve_info(client, id)
     end
   end
 
@@ -139,16 +130,9 @@ defmodule Supabase.Storage do
   @impl true
   def create_bucket(client, attrs) when is_client(client) do
     with {:ok, bucket_params} <- Bucket.create_changeset(attrs),
-         %Conn{access_token: token, api_key: api_key, base_url: base_url} <-
-           Client.retrieve_connection(client),
-         {:ok, _} <- BucketHandler.create(base_url, api_key, token, bucket_params) do
-      retrieve_bucket_info(client, bucket_params.id)
-    else
-      nil ->
-        {:error, :invalid_client}
-
-      {:error, changeset} ->
-        {:error, changeset}
+         {:ok, client} <- Client.retrieve_client(client),
+         {:ok, _} <- BucketHandler.create(client, bucket_params) do
+      retrieve_bucket_info(client.name, bucket_params.id)
     end
   end
 
@@ -182,16 +166,9 @@ defmodule Supabase.Storage do
   @impl true
   def update_bucket(client, bucket, attrs) when is_client(client) do
     with {:ok, bucket_params} <- Bucket.update_changeset(bucket, attrs),
-         %Conn{access_token: token, api_key: api_key, base_url: base_url} <-
-           Client.retrieve_connection(client),
-         {:ok, _} <- BucketHandler.update(base_url, api_key, token, bucket.id, bucket_params) do
-      retrieve_bucket_info(client, bucket.id)
-    else
-      nil ->
-        {:error, :invalid_client}
-
-      {:error, changeset} ->
-        {:error, changeset}
+         {:ok, client} <- Client.retrieve_client(client),
+         {:ok, _} <- BucketHandler.update(client, bucket.id, bucket_params) do
+      retrieve_bucket_info(client.name, bucket.id)
     end
   end
 
@@ -215,12 +192,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def empty_bucket(client, %Bucket{} = bucket) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        BucketHandler.empty(base_url, api_key, token, bucket.id)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      BucketHandler.empty(client, bucket.id)
     end
   end
 
@@ -244,16 +217,9 @@ defmodule Supabase.Storage do
   """
   @impl true
   def delete_bucket(client, %Bucket{} = bucket) when is_client(client) do
-    with %Conn{access_token: token, api_key: api_key, base_url: base_url} <-
-           Client.retrieve_connection(client),
-         {:ok, _} <- BucketHandler.delete(base_url, api_key, token, bucket.id) do
+    with {:ok, client} <- Client.retrieve_client(client),
+         {:ok, _} <- BucketHandler.delete(client, bucket.id) do
       {:ok, :deleted}
-    else
-      nil ->
-        {:error, :invalid_client}
-
-      {:error, changeset} ->
-        {:error, changeset}
     end
   end
 
@@ -277,12 +243,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def remove_object(client, %Bucket{} = bucket, %Object{} = object) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        ObjectHandler.remove(base_url, api_key, token, bucket.name, object.path)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      ObjectHandler.remove(client, bucket.name, object.path)
     end
   end
 
@@ -308,12 +270,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def move_object(client, %Bucket{} = bucket, %Object{} = object, to) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        ObjectHandler.move(base_url, api_key, token, bucket.name, object.path, to)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      ObjectHandler.move(client, bucket.name, object.path, to)
     end
   end
 
@@ -339,12 +297,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def copy_object(client, %Bucket{} = bucket, %Object{} = object, to) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        ObjectHandler.copy(base_url, api_key, token, bucket.name, object.path, to)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      ObjectHandler.copy(client, bucket.name, object.path, to)
     end
   end
 
@@ -368,12 +322,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def retrieve_object_info(client, %Bucket{} = bucket, wildcard) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        ObjectHandler.get_info(base_url, api_key, token, bucket.name, wildcard)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      ObjectHandler.get_info(client, bucket.name, wildcard)
     end
   end
 
@@ -424,12 +374,8 @@ defmodule Supabase.Storage do
   @impl true
   def list_objects(client, %Bucket{} = bucket, prefix \\ "", opts \\ %SearchOptions{})
       when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        ObjectHandler.list(base_url, api_key, token, bucket.name, prefix, opts)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      ObjectHandler.list(client, bucket.name, prefix, opts)
     end
   end
 
@@ -465,13 +411,9 @@ defmodule Supabase.Storage do
   @impl true
   def upload_object(client, %Bucket{} = bucket, path, file, opts \\ %ObjectOptions{})
       when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        file = Path.expand(file)
-        ObjectHandler.create_file(base_url, api_key, token, bucket.name, path, file, opts)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      file = Path.expand(file)
+      ObjectHandler.create_file(client, bucket.name, path, file, opts)
     end
   end
 
@@ -496,12 +438,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def download_object(client, %Bucket{} = bucket, wildcard) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        ObjectHandler.get(base_url, api_key, token, bucket.name, wildcard)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      ObjectHandler.get(client, bucket.name, wildcard)
     end
   end
 
@@ -527,12 +465,8 @@ defmodule Supabase.Storage do
   """
   @impl true
   def download_object_lazy(client, %Bucket{} = bucket, wildcard) when is_client(client) do
-    case Client.retrieve_connection(client) do
-      nil ->
-        {:error, :invalid_client}
-
-      %Conn{access_token: token, api_key: api_key, base_url: base_url} ->
-        ObjectHandler.get_lazy(base_url, api_key, token, bucket.name, wildcard)
+    with {:ok, client} <- Client.retrieve_client(client) do
+      ObjectHandler.get_lazy(client, bucket.name, wildcard)
     end
   end
 
@@ -613,24 +547,86 @@ defmodule Supabase.Storage do
   """
   @impl true
   def create_signed_url(client, %Bucket{} = bucket, path, expires_in) when is_client(client) do
-    with %Conn{access_token: token, api_key: api_key, base_url: base_url} <-
-           Client.retrieve_connection(client),
+    with {:ok, client} <- Client.retrieve_client(client),
          {:ok, sign_url} <-
-           ObjectHandler.create_signed_url(
-             base_url,
-             api_key,
-             token,
-             bucket.name,
-             path,
-             expires_in
-           ) do
-      {:ok, URI.to_string(URI.merge(base_url, sign_url))}
-    else
-      nil ->
-        {:error, :invalid_client}
+           ObjectHandler.create_signed_url(client, bucket.name, path, expires_in) do
+      {:ok, URI.to_string(URI.merge(client.conn.base_url, sign_url))}
+    end
+  end
 
-      err ->
-        err
+  defmacrop wrap_storage_functions do
+    quote unquote: false, bind_quoted: [module: Supabase.Storage] do
+      for {fun, arity} <- module.__info__(:functions) do
+        if arity == 1 do
+          quote do
+            @doc """
+            Check `Supabase.GoTrue.#{unquote(fun)}/#{unquote(arity)}`
+            """
+            def unquote(fun)() do
+              apply(Supabase.Storage, unquote(fun), [@client])
+            end
+          end
+        else
+          args = for idx <- 2..arity, do: Macro.var(:"arg#{idx}", module)
+
+          quote do
+            @doc """
+            Check `Supabase.GoTrue.#{unquote(fun)}/#{unquote(arity)}`
+            """
+            def unquote(fun)(unquote_splicing(args)) do
+              args = [unquote_splicing(args)]
+              apply(Supabase.Storage, unquote(fun), [@client | args])
+            end
+          end
+        end
+      end
+    end
+  end
+
+  defmacro __using__([{:client, client} | opts]) do
+    config = Macro.escape(Keyword.get(opts, :config, %{}))
+
+    quote location: :keep do
+      @client unquote(client)
+
+      def child_spec(opts) do
+        %{
+          id: __MODULE__,
+          start: {__MODULE__, :start_link, [opts]},
+          type: :supervisor
+        }
+      end
+
+      def start_link(opts \\ []) do
+        manage_clients? = Application.get_env(:supabase_potion, :manage_clients, true)
+
+        if manage_clients? do
+          Supabase.init_client(unquote(client), unquote(config))
+        else
+          base_url =
+            Application.get_env(:supabase_potion, :supabase_base_url) ||
+              raise Supabase.MissingSupabaseConfig, :url
+
+          api_key =
+            Application.get_env(:supabase_potion, :supabase_api_key) ||
+              raise Supabase.MissingSupabaseConfig, :key
+
+          config =
+            unquote(config)
+            |> Map.put(:conn, %{base_url: base_url, api_key: api_key})
+            |> Map.put(:name, unquote(client))
+
+          opts = [name: unquote(client), client_info: config]
+          Supabase.Client.start_link(opts)
+        end
+        |> then(fn
+          {:ok, pid} -> {:ok, pid}
+          {:error, {:already_started, pid}} -> {:ok, pid}
+          err -> err
+        end)
+      end
+
+      unquote(wrap_storage_functions())
     end
   end
 end
