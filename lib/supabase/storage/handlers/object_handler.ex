@@ -147,7 +147,7 @@ defmodule Supabase.Storage.ObjectHandler do
     end
   end
 
-  @spec get(Client.t, bucket_name, object_path) :: 
+  @spec get(Client.t, bucket_name, object_path) ::
       {:ok, binary} | {:error, String.t()}
   def get(%Client{} = client, bucket_name, wildcard) do
     uri = Endpoints.file_download(bucket_name, wildcard)
