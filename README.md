@@ -8,7 +8,7 @@
 def deps do
   [
     {:supabase_potion, "~> 0.3"},
-    {:supabase_storage, "~> 0.2"}
+    {:supabase_storage, "~> 0.3.1"}
   ]
 end
 ```

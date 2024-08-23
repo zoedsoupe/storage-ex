@@ -1,8 +1,8 @@
 defmodule Supabase.Storage.MixProject do
   use Mix.Project
 
-  @version "0.3.0"
-  @source_url "https://github.com/zoedsoupe/supabase_storage"
+  @version "0.3.1"
+  @source_url "https://github.com/zoedsoupe/storage-ex"
 
   def project do
     [
