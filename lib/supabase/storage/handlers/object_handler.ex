@@ -104,7 +104,7 @@ defmodule Supabase.Storage.ObjectHandler do
     body = Map.merge(%{prefix: prefix}, Map.from_struct(opts))
 
     url
-    |> Fetcher.post(body, headers)
+    |> Fetcher.post(body, headers, resolve_json: true)
     |> case do
       {:ok, data} -> {:ok, Enum.map(data, &Object.parse!/1)}
       {:error, msg} -> {:error, msg}
