@@ -65,7 +65,7 @@ defmodule Supabase.Storage.ObjectHandler do
     end
   end
 
-  @spec copy(Client.t, bucket_name, object_path, object_path) ::
+  @spec copy(Client.t(), bucket_name, object_path, object_path) ::
           {:ok, :copied} | {:error, String.t()}
   def copy(%Client{} = client, bucket_id, path, to) do
     url = Client.retrieve_storage_url(client, Endpoints.file_copy())
@@ -117,7 +117,7 @@ defmodule Supabase.Storage.ObjectHandler do
     remove_list(client, bucket_name, [path])
   end
 
-  @spec remove_list(Client.t, bucket_name, list(object_path)) ::
+  @spec remove_list(Client.t(), bucket_name, list(object_path)) ::
           {:ok, :deleted} | {:error, String.t()}
   def remove_list(%Client{} = client, bucket_name, paths) do
     uri = Endpoints.file_remove(bucket_name)
@@ -132,7 +132,7 @@ defmodule Supabase.Storage.ObjectHandler do
     end
   end
 
-  @spec create_signed_url(Client.t, bucket_name, object_path, integer) ::
+  @spec create_signed_url(Client.t(), bucket_name, object_path, integer) ::
           {:ok, String.t()} | {:error, String.t()}
   def create_signed_url(%Client{} = client, bucket_name, path, expires_in) do
     uri = Endpoints.file_signed_url(bucket_name, path)
@@ -140,15 +140,15 @@ defmodule Supabase.Storage.ObjectHandler do
     headers = Fetcher.apply_client_headers(client)
 
     url
-    |> Fetcher.post(%{expiresIn: expires_in}, headers)
+    |> Fetcher.post(%{expiresIn: expires_in}, headers, resolve_json: true)
     |> case do
       {:ok, data} -> {:ok, data["signedURL"]}
       {:error, msg} -> {:error, msg}
     end
   end
 
-  @spec get(Client.t, bucket_name, object_path) ::
-      {:ok, binary} | {:error, String.t()}
+  @spec get(Client.t(), bucket_name, object_path) ::
+          {:ok, binary} | {:error, String.t()}
   def get(%Client{} = client, bucket_name, wildcard) do
     uri = Endpoints.file_download(bucket_name, wildcard)
     url = Client.retrieve_storage_url(client, uri)
@@ -162,7 +162,7 @@ defmodule Supabase.Storage.ObjectHandler do
     end
   end
 
-  @spec get_lazy(Client.t, bucket_name, wildcard) ::
+  @spec get_lazy(Client.t(), bucket_name, wildcard) ::
           {:ok, Stream.t()} | {:error, atom}
   def get_lazy(%Client{} = client, bucket_name, wildcard) do
     uri = Endpoints.file_download(bucket_name, wildcard)
