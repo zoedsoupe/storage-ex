@@ -1,7 +1,7 @@
 defmodule Supabase.Storage.MixProject do
   use Mix.Project
 
-  @version "0.3.1"
+  @version "0.3.2"
   @source_url "https://github.com/zoedsoupe/storage-ex"
 
   def project do
@@ -26,7 +26,7 @@ defmodule Supabase.Storage.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.10"},
-      {:supabase_potion, "~> 0.3"},
+      {:supabase_potion, "~> 0.4"},
       {:ex_doc, ">= 0.0.0", runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.3", only: [:dev], runtime: false}

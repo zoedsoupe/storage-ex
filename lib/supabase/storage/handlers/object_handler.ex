@@ -32,7 +32,7 @@ defmodule Supabase.Storage.ObjectHandler do
   @type wildcard :: String.t()
   @type prefix :: String.t()
 
-  @spec create_file(Clien.t(), bucket_name, object_path, file_path, opts) ::
+  @spec create_file(Client.t(), bucket_name, object_path, file_path, opts) ::
           {:ok, Object.t()} | {:error, String.t()}
   def create_file(%Client{} = client, bucket, object_path, file_path, %Opts{} = opts) do
     uri = Endpoints.file_upload(bucket, object_path)
@@ -163,7 +163,7 @@ defmodule Supabase.Storage.ObjectHandler do
   end
 
   @spec get_lazy(Client.t(), bucket_name, wildcard) ::
-          {:ok, Stream.t()} | {:error, atom}
+          {:ok, Enumerable.t()} | {:error, atom}
   def get_lazy(%Client{} = client, bucket_name, wildcard) do
     uri = Endpoints.file_download(bucket_name, wildcard)
     url = Client.retrieve_storage_url(client, uri)

@@ -6,7 +6,7 @@ defmodule Supabase.StorageBehaviour do
   alias Supabase.Storage.ObjectOptions, as: Opts
   alias Supabase.Storage.SearchOptions, as: Search
 
-  @type conn :: atom
+  @type conn :: Supabase.Client.t()
   @type reason :: String.t() | atom
   @type result(a) :: {:ok, a} | {:error, reason} | {:error, :invalid_client}
 
@@ -29,7 +29,7 @@ defmodule Supabase.StorageBehaviour do
                  source: Path.t()
   @callback download_object(conn, Bucket.t(), wildcard) :: result(binary)
             when wildcard: String.t()
-  @callback download_object_lazy(conn, Bucket.t(), wildcard) :: result(Stream.t())
+  @callback download_object_lazy(conn, Bucket.t(), wildcard) :: result(Enumerable.t())
             when wildcard: String.t()
   @callback save_object(conn, dest, Bucket.t(), wildcard) ::
               :ok | {:error, atom} | {:error, :invalid_client}
